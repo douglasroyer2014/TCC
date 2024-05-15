@@ -1,0 +1,16 @@
+descrição;código
+Admissão por Primeiro Emprego;1
+Admissão por Reemprego;2
+Admissão por Transferência;3
+Desligamento por Demissão sem Justa Causa;4
+Desligamento por Demissão com Justa Causa;5
+Desligamento a Pedido;6
+Desligamento por Aposentadoria;7
+Desligamento por Morte;8
+Desligamento por Transferência;9
+Admissão por Reintegraçao;10
+Desligamento por Término de Contrato;11
+Contrato Trabalho Prazo Determinado;25
+Término Contrato Trabalho Prazo Determinado;43
+Desliamento por Acordo Empregado e Empregador;90
+IGNORADO;-1

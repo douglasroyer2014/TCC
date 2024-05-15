@@ -1,0 +1,13 @@
+descrição;código
+Analfabeto;1
+Até 5ª Incompleto;2
+5ª Completo Fundamental;3
+6ª a 9ª Fundamental;4
+Fundamental Completo;5
+Médio Incompleto;6
+Médio Completo;7
+Superior Incompleto;8
+Superior Completo;9
+MESTRADO;10
+DOUTORADO;11
+IGNORADO;-1
