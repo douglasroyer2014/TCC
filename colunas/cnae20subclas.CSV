@@ -1,16 +1,4 @@
 código;descrição
-8020001;8020001
-9609208;9609208
-9609207;9609207
-6201501;6201501
-2013402;2013402
-5812301;5812301
-5239799;5239799
-6201502;6201502
-2013401;2013401
-7410203;7410203
-5822101;5822101
-8020002;8020002
 111301;Cultivo de Arroz
 111302;Cultivo de Milho
 111303;Cultivo de Trigo
@@ -1340,3 +1328,22 @@ código;descrição
 9609299;Outras Atividades de Serviços Pessoais não Especificadas Anteriormente
 9700500;Serviços Domésticos
 9900800;Organismos Internacionais e Outras Instituições Extraterritoriais
+8020001;Serviços de monitoramento de sistemas de segurança eletrônicos
+9609208;Serviços de podologia
+9609207;Atividades de sauna e banhos
+6201501;Desenvolvimento de programas de computador sob encomenda
+2013402;Fabricação de elastômeros
+5812301;Edição integrada à impressão de jornais
+5239799;Comércio varejista de outros produtos novos não especificados anteriormente
+6201502;Web design
+2013401;Fabricação de resinas termoplásticas
+7410203;Atividades de design de interiores
+5822101;Fornecimento de alimentos preparados preponderantemente para empresas
+8020002;Serviços de monitoramento de sistemas de segurança não eletrônicos
+5239701;Comércio varejista de produtos farmacêuticos, sem manipulação de fórmulas
+9412099;Outras atividades associativas não especificadas anteriormente
+5822102;Fornecimento de alimentos preparados preponderantemente para empresas e o comércio por atacado de alimentos e bebidas
+5812302;Fornecimento de alimentos preparados para consumo em eventos
+9999999;Outras atividades de serviços pessoais não especificadas anteriormente
+9412001;Atividades de organizações sindicais
+7410299;Outras atividades de design não especificadas anteriormente
