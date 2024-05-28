@@ -21,7 +21,7 @@ public class ReadService {
     ExecuteSqlService executeSqlService;
 
     public void readyFileAndSave(String directory, String nameFile, String nameTable) {
-        File file = new File(directory + "\\" + nameFile + ".txt");
+        File file = new File(directory + "\\" + nameFile);
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));

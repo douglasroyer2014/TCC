@@ -18,6 +18,7 @@ public class MQConfig {
     public static final String EXCHANGE = "message_exchange";
     public static final String ROUTING_KEY = "message_routingKey";
     public static final String SAVE_DATA = "save_data_queue";
+    public static final String MANAGER = "manager_queue";
 
     @Bean
     public Queue saveData() {

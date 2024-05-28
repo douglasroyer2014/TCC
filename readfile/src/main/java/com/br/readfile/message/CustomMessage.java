@@ -18,5 +18,6 @@ public class CustomMessage {
     private String directory;
     private String fileName;
     private String tableName;
+    private String processId;
 
 }

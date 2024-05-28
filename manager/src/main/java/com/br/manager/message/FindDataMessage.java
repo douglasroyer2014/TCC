@@ -17,7 +17,8 @@ public class FindDataMessage {
     private Date messageDate;
     private String tableName;
     private String defaultSearch;
-    private int defaultValue;
+    private int valueSearchDefault;
     private String fieldSearch;
-    private String valueSearch;
+    private int valueSearch;
+    private String processId;
 }

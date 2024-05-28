@@ -1,4 +1,5 @@
-package com.br.manager.message;
+package com.br.readfile.message;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,13 +12,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SaveDataMessage {
+public class ManagerMessage {
 
     private String messageId;
     private Date messageDate;
-    private String directory;
-    private String fileName;
-    private String tableName;
     private String processId;
-
+    private String messageType;
 }

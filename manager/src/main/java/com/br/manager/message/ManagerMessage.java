@@ -11,13 +11,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SaveDataMessage {
+public class ManagerMessage {
 
     private String messageId;
     private Date messageDate;
-    private String directory;
-    private String fileName;
-    private String tableName;
     private String processId;
-
+    private String messageType;
 }

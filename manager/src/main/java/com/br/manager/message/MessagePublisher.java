@@ -1,6 +1,5 @@
 package com.br.manager.message;
 
-import com.br.manager.caged.CagedEntity;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -18,25 +17,27 @@ public class MessagePublisher {
 
     private RabbitTemplate template;
 
-    public void publishMessageSaveData(String directory, String fileName, String tableName) {
+    public void publishMessageSaveData(String directory, String fileName, String tableName, String processId) {
         SaveDataMessage message = new SaveDataMessage();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageDate(new Date());
         message.setDirectory(directory);
         message.setFileName(fileName);
         message.setTableName(tableName);
+        message.setProcessId(processId);
         template.convertAndSend(MQConfig.SAVE_DATA, message);
     }
 
-    public void publishMessageFIndData(CagedEntity entity) {
+    public void publishMessageFIndData(String tableName, String defaultSearch, int valueDefaultSearch, String fieldSearch, int valueSearch, String processId) {
         FindDataMessage message = new FindDataMessage();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageDate(new Date());
-        message.setTableName(entity.getTableName());
-        message.setDefaultSearch(entity.getDefaultSearch());
-        message.setDefaultValue(entity.getDefaultValue());
-        message.setFieldSearch(entity.getFieldSearch());
-        message.setValueSearch(entity.getValueSearch());
+        message.setTableName(tableName);
+        message.setDefaultSearch(defaultSearch);
+        message.setValueSearchDefault(valueDefaultSearch);
+        message.setFieldSearch(fieldSearch);
+        message.setValueSearch(valueSearch);
+        message.setProcessId(processId);
         template.convertAndSend(MQConfig.FIND_DATA, message);
     }
 }

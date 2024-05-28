@@ -15,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class MessageListener {
 
     ReadService readService;
+    MessagePublisher messagePublisher;
 
     @Transactional
     @RabbitListener(queues = MQConfig.SAVE_DATA)
     public void listener(CustomMessage message) {
         readService.readyFileAndSave(message.getDirectory(), message.getFileName(), message.getTableName());
+        messagePublisher.publishMessageSaveData(message.getProcessId());
     }
 }

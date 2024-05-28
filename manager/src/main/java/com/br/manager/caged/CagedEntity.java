@@ -11,7 +11,6 @@ public class CagedEntity {
 
     String tableName;
     String defaultSearch;
-    int defaultValue;
     String fieldSearch;
     String valueSearch;
 }

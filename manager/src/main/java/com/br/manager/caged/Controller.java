@@ -2,6 +2,8 @@ package com.br.manager.caged;
 
 import com.br.manager.message.MessagePublisher;
 import com.br.manager.script.ExecuteSqlService;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -22,12 +24,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Setter(onMethod_ = @Autowired)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Controller {
 
+    public static final Cache<String, Integer> PROCESS_TOTAL = Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
     MessagePublisher messagePublisher;
     ExecuteSqlService executeSqlService;
 
@@ -43,39 +48,70 @@ public class Controller {
             ex.printStackTrace();
         }
 
-        createTables(file.getDirectory(), nameFileList.get(0), file.getTableName());
+//        createTables(file.getDirectory(), file.getTableName());
+
+        String processId = UUID.randomUUID().toString();
+        PROCESS_TOTAL.put(processId, nameFileList.size());
 
         for (String nameFile : nameFileList) {
-            messagePublisher.publishMessageSaveData(file.getDirectory(), nameFile, file.getTableName());
+            messagePublisher.publishMessageSaveData(file.getDirectory(), nameFile, file.getTableName(), processId);
         }
-        return "Mensagem enviada";
+        return "Iniciado o processo de gravação dos arquivos!";
     }
 
     @PostMapping("/findData")
     public String findData(@RequestBody CagedEntity entity) {
-        messagePublisher.publishMessageFIndData(entity);
-        return "Mensagem enviada";
+
+        String processId = UUID.randomUUID().toString();
+        List<Integer> codeSearch = executeSqlService.getAllCode(entity.getDefaultSearch());
+        Integer valueSearch = executeSqlService.getCode(entity.getFieldSearch(), entity.valueSearch);
+
+        PROCESS_TOTAL.put(processId, codeSearch.size());
+
+        for (Integer code : codeSearch) {
+            messagePublisher.publishMessageFIndData(entity.getTableName(), entity.getDefaultSearch(), 11, entity.fieldSearch, valueSearch, processId);
+        }
+        return "Iniciado o processo de busca!";
     }
 
-    void createTables(String directory, String nameFile, String tableName) {
+    void createTables(String directory, String tableName) {
+        BufferedReader br = null;
         try {
-            File file = new File(directory + "\\" + nameFile);
+            File file = new File(directory + "\\layout\\layout.csv");
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
+            List<String> columns = new ArrayList<>();
 
-            String[] columns = br.readLine().split(";");
-            createTables(columns, directory, tableName);
+            String line = br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] valor = line.split(";");
+
+                if (valor[0] != null && !valor[0].isEmpty()) {
+                    columns.add(valor[0]);
+                }
+            }
 
             br.close();
+            createTables(columns, directory, tableName);
+
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    void createTables(String[] columns, String directory, String nameTable) throws Exception {
+    void createTables(List<String> columns, String directory, String nameTable) throws Exception {
         List<String> tableFks = new ArrayList<>();
-        for (int i = 0; i < columns.length; i++) {
-            String tableName = columns[i]
+        for (int i = 0; i < columns.size(); i++) {
+            String tableName = columns.get(i)
                     .replace("/", "")
                     .replace(" ", "")
                     .replace("\\", "")
@@ -101,8 +137,10 @@ public class Controller {
                 executeSqlService.executeSqlScript(sql);
 
                 tableFks.add(tableName);
+                br.close();
             }
         }
+
 
         createTableWithFk(columns, tableFks, nameTable);
     }
@@ -125,7 +163,7 @@ public class Controller {
         return columnsTable.substring(0, columnsTable.length() - 2);
     }
 
-    void createTableWithFk(String[] columns, List<String> tableFks, String tableName) throws Exception {
+    void createTableWithFk(List<String> columns, List<String> tableFks, String tableName) throws Exception {
         String createTable = String.format("create table %s ( %s );", tableName, createColumnsNumeric(columns));
 
         executeSqlService.executeSqlScript(createTable);
@@ -156,10 +194,10 @@ public class Controller {
         return String.format("(%s), ", values);
     }
 
-    String createColumnsNumeric(String[] columns) {
+    String createColumnsNumeric(List<String> columns) {
         String columnsTable = "";
-        for (int i = 0; i <= columns.length - 1; i++) {
-            columnsTable += columns[i]
+        for (int i = 0; i <= columns.size() - 1; i++) {
+            columnsTable += columns.get(i)
                     .replace(" ", "")
                     .replace("/", "")
                     .replace(".", "")

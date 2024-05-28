@@ -10,13 +10,18 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @org.springframework.stereotype.Service
 @Setter(onMethod_ = @Autowired)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FindService {
 
-    public void findData(String tableName, String defaultSearch, int defaultValue, String fieldSearch, int value) {
+    public List<Map<String, Integer>> findData(String tableName, String defaultSearch, int defaultValue, String fieldSearch, int value) {
+        List<Map<String, Integer>> valueList = new ArrayList<>();
         try {
             Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
 
@@ -31,16 +36,17 @@ public class FindService {
 
             while (result.next()) {
 
-                String valueData = "";
+                Map<String, Integer> valueResult = new HashMap<>();
 
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    valueData += metaData.getColumnName(i) + ": " + result.getObject(i) + "; ";
+                    valueResult.put(metaData.getColumnName(i), result.getInt(i));
                 }
 
-                System.out.println(valueData);
+                valueList.add(valueResult);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return valueList;
     }
 }
