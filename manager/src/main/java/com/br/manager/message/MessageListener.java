@@ -13,8 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.br.manager.caged.Controller.PROCESS_TOTAL;
 
@@ -35,7 +38,6 @@ public class MessageListener {
         Integer processValue = PROCESS_TOTAL.getIfPresent(message.getProcessId());
 
         if (processValue != null && processValue == total) {
-            System.out.println("Gravação dos arquivos finalizado com sucesso!");
 
             List<String> result = jedis.lrange(String.format("%s:%s", message.getProcessId(), message.getMessageType()), 0, -1);
 
@@ -46,23 +48,49 @@ public class MessageListener {
                 }.getType()));
             }
 
-            System.out.println();
-            for (Map<String, Integer> resultFindData : valueResult) {
+            Map<String, Set<Integer>> codeMap = new HashMap<>();
 
-                for (String key : resultFindData.keySet()) {
-                    String description;
-                    try {
-                        description = executeSqlService.getDescription(key, resultFindData.get(key));
-                    } catch (Exception e) {
-                        description = "" + resultFindData.get(key);
-                    }
-
-                    System.out.print(key + ": " + description + "; ");
-                }
-
-                System.out.println();
+            for (String key : valueResult.get(0).keySet()) {
+                codeMap.put(key, new HashSet<>());
             }
 
+            for (Map<String, Integer> resultFindData : valueResult) {
+                for (String key : resultFindData.keySet()) {
+                    codeMap.get(key).add(resultFindData.get(key));
+                }
+            }
+
+            Map<String, Map<Integer, String>> valueMap = new HashMap<>();
+
+            for (String key : codeMap.keySet()) {
+                String where = getWhere(codeMap.get(key));
+                try {
+                    valueMap.put(key, executeSqlService.getCodeAndValue(key, where));
+                } catch (Exception e) {
+                    //donothing
+                }
+            }
+
+            for (Map<String, Integer> resultFindData : valueResult) {
+                for (String key : resultFindData.keySet()) {
+                    Map<Integer, String> value = valueMap.get(key);
+                    if (value != null) {
+                        System.out.print(key + ": " + value.get(resultFindData.get(key)) + "; ");
+                    } else {
+                        System.out.print(key + ": " + resultFindData.get(key) + "; ");
+                    }
+                }
+                System.out.println();
+            }
         }
+    }
+
+    String getWhere(Set<Integer> codeSet) {
+        String where = "(";
+        for (Integer code : codeSet) {
+            where += code + ", ";
+        }
+
+        return where.substring(0, where.length() - 2) + ")";
     }
 }

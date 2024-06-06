@@ -12,7 +12,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Setter(onMethod_ = @Autowired)
@@ -77,5 +79,17 @@ public class ExecuteSqlService {
             description = result.getString("descrição");
         }
         return description;
+    }
+
+    public Map<Integer, String> getCodeAndValue(String tableName, String where) throws Exception {
+        Map<Integer, String> value = new HashMap<>();
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+        PreparedStatement preparedStatement = con.prepareStatement(String.format("Select \"código\", \"descrição\" from %s where \"código\" in %s", tableName, where));
+
+        ResultSet result = preparedStatement.executeQuery();
+        while (result.next()) {
+            value.put(result.getInt("código"), result.getString("descrição"));
+        }
+        return value;
     }
 }

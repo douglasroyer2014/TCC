@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -15,6 +16,7 @@ import java.sql.Statement;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExecuteSqlService {
 
+    @Async
     public void executeSqlScript(String script) {
         try {
             Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
