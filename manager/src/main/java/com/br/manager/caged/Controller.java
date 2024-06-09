@@ -45,11 +45,10 @@ public class Controller {
                 nameFileList.add(path.getFileName().toString());
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+//            donothing
         }
 
-//        createTables(file.getDirectory(), file.getTableName());
-
+        createTables(file.getDirectory(), file.getTableName());
         String processId = UUID.randomUUID().toString();
         PROCESS_TOTAL.put(processId, nameFileList.size());
 

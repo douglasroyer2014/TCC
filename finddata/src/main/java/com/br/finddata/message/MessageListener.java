@@ -27,7 +27,7 @@ public class MessageListener {
     public void listener(CustomMessage message) {
         List<Map<String, Integer>> findList = findService
                 .findData(message.getTableName(), message.getDefaultSearch(), message.getValueSearchDefault(), message.getFieldSearch(), message.getValueSearch());
-        Jedis jedis = new Jedis("localhost");
+        Jedis jedis = new Jedis("201.54.201.31", 6379);
 
         Gson gson = new Gson();
         for (Map<String, Integer> user : findList) {

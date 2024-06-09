@@ -19,7 +19,7 @@ public class ExecuteSqlService {
     @Async
     public void executeSqlScript(String script) {
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+            Connection con = DriverManager.getConnection("jdbc:postgresql://201.54.201.31/postgres", "postgres", "aluno");
 
             Statement stmt = con.createStatement();
 

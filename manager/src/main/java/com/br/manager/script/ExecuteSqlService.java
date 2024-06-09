@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +22,13 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExecuteSqlService {
 
+    private static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:postgresql://201.54.201.31/postgres", "postgres", "aluno");
+    }
+
     public void executeSqlScript(String script) {
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+            Connection con = getConnection();
 
             Statement stmt = con.createStatement();
 
@@ -39,7 +44,7 @@ public class ExecuteSqlService {
         List<Integer> codeSearchList = new ArrayList<>();
 
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+            Connection con = getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(String.format("Select código from %s", tableName));
 
             ResultSet result = preparedStatement.executeQuery();
@@ -56,7 +61,7 @@ public class ExecuteSqlService {
         Integer code = null;
 
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+            Connection con = getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(String.format("Select código from %s where descrição = '%s'", fieldSearch, valueSearch));
 
             ResultSet result = preparedStatement.executeQuery();
@@ -71,7 +76,7 @@ public class ExecuteSqlService {
 
     public String getDescription(String tableName, Integer code) throws Exception {
         String description = "";
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+        Connection con = getConnection();
         PreparedStatement preparedStatement = con.prepareStatement(String.format("Select descrição from %s where código = '%s'", tableName, code));
 
         ResultSet result = preparedStatement.executeQuery();
@@ -83,7 +88,7 @@ public class ExecuteSqlService {
 
     public Map<Integer, String> getCodeAndValue(String tableName, String where) throws Exception {
         Map<Integer, String> value = new HashMap<>();
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
+        Connection con = getConnection();
         PreparedStatement preparedStatement = con.prepareStatement(String.format("Select \"código\", \"descrição\" from %s where \"código\" in %s", tableName, where));
 
         ResultSet result = preparedStatement.executeQuery();

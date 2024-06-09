@@ -47,7 +47,6 @@ public class ReadService {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-
     }
 
     String convertValueInsertNumeric(String[] data) {

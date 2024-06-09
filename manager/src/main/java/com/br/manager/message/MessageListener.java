@@ -32,17 +32,24 @@ public class MessageListener {
     @RabbitListener(queues = MQConfig.MANAGER)
     public void listener(ManagerMessage message) {
 
-        Jedis jedis = new Jedis("localhost");
-        int total = jedis.incr(String.format("%S:%s", message.getProcessId(), message.getMessageType())).intValue();
+        Jedis jedis = new Jedis("201.54.201.31", 6379);
 
+        int total = jedis.incr(String.format("%S:%s", message.getProcessId(), message.getMessageType())).intValue();
         Integer processValue = PROCESS_TOTAL.getIfPresent(message.getProcessId());
 
         if (processValue != null && processValue == total) {
+            finishedProcess(message, jedis);
+        }
+    }
 
+    private void finishedProcess(ManagerMessage message, Jedis jedis) {
+        if (message.getMessageType().equals("SAVE_DATA")) {
+            System.out.println("Gravação dos arquivos finalizado!");
+        } else {
             List<String> result = jedis.lrange(String.format("%s:%s", message.getProcessId(), message.getMessageType()), 0, -1);
-
             Gson gson = new Gson();
             List<Map<String, Integer>> valueResult = new ArrayList<>();
+
             for (String value : result) {
                 valueResult.add(gson.fromJson(value, new TypeToken<Map<String, Integer>>() {
                 }.getType()));
