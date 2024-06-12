@@ -38,6 +38,7 @@ public class Controller {
 
     @PostMapping("/savedata")
     public String sendMessage(@RequestBody CagedDirectory file) {
+        System.out.println(System.currentTimeMillis());
         Path directoryPath = Paths.get(file.getDirectory());
         List<String> nameFileList = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directoryPath, Files::isRegularFile)) {
@@ -60,7 +61,7 @@ public class Controller {
 
     @PostMapping("/findData")
     public String findData(@RequestBody CagedEntity entity) {
-
+        System.out.println(System.currentTimeMillis());
         String processId = UUID.randomUUID().toString();
         List<Integer> codeSearch = executeSqlService.getAllCode(entity.getDefaultSearch());
         Integer valueSearch = executeSqlService.getCode(entity.getFieldSearch(), entity.valueSearch);

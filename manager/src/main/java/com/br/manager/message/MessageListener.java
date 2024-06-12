@@ -44,6 +44,7 @@ public class MessageListener {
 
     private void finishedProcess(ManagerMessage message, Jedis jedis) {
         if (message.getMessageType().equals("SAVE_DATA")) {
+            System.out.println(System.currentTimeMillis());
             System.out.println("Gravação dos arquivos finalizado!");
         } else {
             List<String> result = jedis.lrange(String.format("%s:%s", message.getProcessId(), message.getMessageType()), 0, -1);
@@ -89,7 +90,9 @@ public class MessageListener {
                 }
                 System.out.println();
             }
+            System.out.println("Busca finalizada!");
         }
+        System.out.println(System.currentTimeMillis());
     }
 
     String getWhere(Set<Integer> codeSet) {
