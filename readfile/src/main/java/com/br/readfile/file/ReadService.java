@@ -33,7 +33,7 @@ public class ReadService {
                 control += 1;
                 sql += String.format("(%s), ", convertValueInsertNumeric(st.split(";")));
 
-                if (control == 1500) {
+                if (control == 100000) {
                     try {
                         executeSqlService.executeSqlScript(sql.substring(0, sql.length() - 2));
                     } catch (Exception e) {

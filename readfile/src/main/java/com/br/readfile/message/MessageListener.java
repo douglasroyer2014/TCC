@@ -20,11 +20,7 @@ public class MessageListener {
     @Transactional
     @RabbitListener(queues = MQConfig.SAVE_DATA)
     public void listener(CustomMessage message) {
-        System.out.println("começando");
-        System.out.println(System.currentTimeMillis());
         readService.readyFileAndSave(message.getDirectory(), message.getFileName(), message.getTableName());
         messagePublisher.publishMessageSaveData(message.getProcessId());
-        System.out.println("finalizando");
-        System.out.println(System.currentTimeMillis());
     }
 }
