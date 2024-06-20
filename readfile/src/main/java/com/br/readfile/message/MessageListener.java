@@ -20,7 +20,11 @@ public class MessageListener {
     @Transactional
     @RabbitListener(queues = MQConfig.SAVE_DATA)
     public void listener(CustomMessage message) {
-        readService.readyFileAndSave(message.getDirectory(), message.getFileName(), message.getTableName());
+        try {
+            readService.readyFileAndSave(message.getDirectory(), message.getFileName(), message.getTableName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         messagePublisher.publishMessageSaveData(message.getProcessId());
     }
 }

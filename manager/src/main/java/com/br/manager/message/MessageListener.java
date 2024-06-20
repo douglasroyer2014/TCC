@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.Jedis;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,8 +44,7 @@ public class MessageListener {
     }
 
     private void finishedProcess(ManagerMessage message, Jedis jedis) {
-        if (message.getMessageType().equals("SAVE_DATA")) {
-            System.out.println(System.currentTimeMillis());
+        if (message.getMessageType().equals("READ_FILE")) {
             System.out.println("Gravação dos arquivos finalizado!");
         } else {
             List<String> result = jedis.lrange(String.format("%s:%s", message.getProcessId(), message.getMessageType()), 0, -1);
@@ -92,7 +92,7 @@ public class MessageListener {
             }
             System.out.println("Busca finalizada!");
         }
-        System.out.println(System.currentTimeMillis());
+        System.out.println(LocalTime.now());
     }
 
     String getWhere(Set<Integer> codeSet) {

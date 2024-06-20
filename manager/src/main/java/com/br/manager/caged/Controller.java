@@ -22,6 +22,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +39,8 @@ public class Controller {
 
     @PostMapping("/savedata")
     public String sendMessage(@RequestBody CagedDirectory file) {
-        System.out.println(System.currentTimeMillis());
+        System.out.println("Iniciado o processo de gravação de arquivos");
+        System.out.println(LocalTime.now());
         Path directoryPath = Paths.get(file.getDirectory());
         List<String> nameFileList = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directoryPath, Files::isRegularFile)) {
@@ -61,7 +63,8 @@ public class Controller {
 
     @PostMapping("/findData")
     public String findData(@RequestBody CagedEntity entity) {
-        System.out.println(System.currentTimeMillis());
+        System.out.println("Iniciado o processo de Busca");
+        System.out.println(LocalTime.now());
         String processId = UUID.randomUUID().toString();
         List<Integer> codeSearch = executeSqlService.getAllCode(entity.getDefaultSearch());
         Integer valueSearch = executeSqlService.getCode(entity.getFieldSearch(), entity.valueSearch);
@@ -141,7 +144,6 @@ public class Controller {
             }
         }
 
-
         createTableWithFk(columns, tableFks, nameTable);
     }
 
@@ -164,11 +166,17 @@ public class Controller {
     }
 
     void createTableWithFk(List<String> columns, List<String> tableFks, String tableName) throws Exception {
-        String createTable = String.format("create table %s ( %s );", tableName, createColumnsNumeric(columns));
+        String createTable;
+        if (tableFks.isEmpty()) {
+            createTable = String.format("create table %s ( %s );", tableName, createColumns(columns.toArray(new String[0])));
 
-        executeSqlService.executeSqlScript(createTable);
+            executeSqlService.executeSqlScript(createTable);
+        } else {
+            createTable = String.format("create table %s ( %s );", tableName, createColumnsNumeric(columns));
+            executeSqlService.executeSqlScript(createTable);
 
-        createFk(tableFks, tableName);
+            createFk(tableFks, tableName);
+        }
     }
 
     void createFk(List<String> tableFks, String tableName) throws Exception {

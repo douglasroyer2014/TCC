@@ -20,11 +20,11 @@ public class ReadService {
 
     ExecuteSqlService executeSqlService;
 
-    public void readyFileAndSave(String directory, String nameFile, String nameTable) {
-
+    public void readyFileAndSave(String directory, String nameFile, String nameTable) throws Exception {
+        BufferedReader br = null;
         try {
             File file = new File(directory + "\\" + nameFile);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
 
             String st = br.readLine();
             String sql = String.format("insert into %s values ", nameTable);
@@ -33,7 +33,7 @@ public class ReadService {
                 control += 1;
                 sql += String.format("(%s), ", convertValueInsertNumeric(st.split(";")));
 
-                if (control == 100000) {
+                if (control == 2000) {
                     try {
                         executeSqlService.executeSqlScript(sql.substring(0, sql.length() - 2));
                     } catch (Exception e) {
@@ -42,10 +42,11 @@ public class ReadService {
                     sql = "insert into caged values ";
                     control = 0;
                 }
-
             }
         } catch (Exception exception) {
             exception.printStackTrace();
+        } finally {
+            br.close();
         }
     }
 

@@ -23,7 +23,7 @@ import java.util.Map;
 public class ExecuteSqlService {
 
     private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://201.54.201.31/postgres", "postgres", "aluno");
+        return DriverManager.getConnection("jdbc:postgresql://201.54.201.38/postgres", "postgres", "aluno");
     }
 
     public void executeSqlScript(String script) {
