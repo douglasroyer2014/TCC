@@ -58,7 +58,7 @@ public class Controller {
         PROCESS_DIRECTORY.put(processId, file.getDirectory());
 
         for (String nameFile : nameFileList) {
-            messagePublisher.publishMessageSaveData(file.getDirectory(), nameFile, file.getTableName(), processId);
+            messagePublisher.publishMessageSaveData(file.getDirectory(), nameFile, file.getTableName(), processId, file.isStructured());
         }
         return "Iniciado o processo de gravação dos arquivos!";
     }
@@ -73,9 +73,9 @@ public class Controller {
 
         PROCESS_TOTAL.put(processId, codeSearch.size());
 
-        for (Integer code : codeSearch) {
-            messagePublisher.publishMessageFIndData(entity.getTableName(), entity.getDefaultSearch(), 11, entity.fieldSearch, valueSearch, processId);
-        }
+//        for (Integer code : codeSearch) {
+        messagePublisher.publishMessageFIndData(entity.getTableName(), entity.getDefaultSearch(), 11, entity.fieldSearch, valueSearch, processId);
+//        }
         return "Iniciado o processo de busca!";
     }
 
@@ -87,7 +87,7 @@ public class Controller {
             br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
             List<String> columns = new ArrayList<>();
 
-            String line = br.readLine();
+            String line;
 
             while ((line = br.readLine()) != null) {
                 String[] valor = line.split(";");
@@ -99,7 +99,7 @@ public class Controller {
 
             br.close();
 
-            createTable(columns, directory, isStructured);
+            createTable(columns, tableName, isStructured);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,7 +131,7 @@ public class Controller {
     void createTable(List<String> columns, String tableName, boolean isStructured) throws Exception {
         executeSqlService.executeSqlScript(String.format("create table %s ( %s );", tableName,
                 (isStructured) ?
-                        createColumns(columns) : createColumnsNumeric(columns)));
+                        createColumnsNumeric(columns) : createColumns(columns)));
     }
 
     String createColumnsNumeric(List<String> columns) {

@@ -11,5 +11,5 @@ public class CagedDirectory {
 
     String directory;
     String tableName;
-    boolean isStructured;
+    boolean structured;
 }

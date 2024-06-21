@@ -17,7 +17,7 @@ public class MessagePublisher {
 
     private RabbitTemplate template;
 
-    public void publishMessageSaveData(String directory, String fileName, String tableName, String processId) {
+    public void publishMessageSaveData(String directory, String fileName, String tableName, String processId, boolean isStructured) {
         SaveDataMessage message = new SaveDataMessage();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageDate(new Date());
@@ -25,6 +25,7 @@ public class MessagePublisher {
         message.setFileName(fileName);
         message.setTableName(tableName);
         message.setProcessId(processId);
+        message.setStructured(isStructured);
         template.convertAndSend(MQConfig.SAVE_DATA, message);
     }
 

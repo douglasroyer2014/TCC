@@ -75,42 +75,45 @@ public class MessageListener {
 //            donothing
         }
         if (message.isStructured()) {
-            for (String nameFile : nameFileList) {
-                createTable(nameFile, directory);
-            }
+            try {
+                for (String nameFile : nameFileList) {
+                    createTable(nameFile.substring(0, nameFile.length() - 4), directory);
+                }
 
-            createAlterTable(nameFileList, message.getTableName());
+                createAlterTable(nameFileList, message.getTableName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void createAlterTable(List<String> tableNames, String tableName) {
         String query = "";
         for (String tableFk : tableNames) {
-            query += "alter table " + tableName + " add constraint fk_" + tableFk + " foreign key (" + tableFk + ") references " + tableFk + " (código);";
+            String table = tableFk.substring(0, tableFk.length() - 4);
+            query += "alter table " + tableName + " add constraint fk_" + table + " foreign key (" + table + ") references " + table + " (código);";
         }
         executeSqlService.executeSqlScript(query);
     }
 
-    private void createTable(String tableName, String directory) {
+    private void createTable(String tableName, String directory) throws Exception {
         File file = new File(directory + "\\fk\\" + tableName + ".CSV");
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
 
-            String columns = br.readLine();
-            String st;
-            String values = "";
-            while ((st = br.readLine()) != null) {
-                values += convertValueInsert(st.split(";"));
-            }
-
-            String sql = String.format("insert into %s values %s;", tableName, values.substring(0, values.length() - 2));
-
-            executeSqlService.executeSqlScript(sql);
-            br.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        String columns = br.readLine();
+        executeSqlService.executeSqlScript(String.format("create table %s ( %s );", tableName,
+                createColumns(List.of(columns.split(";")))));
+        String st;
+        String values = "";
+        while ((st = br.readLine()) != null) {
+            values += convertValueInsert(st.split(";"));
         }
+
+        String sql = String.format("insert into %s values %s;", tableName, values.substring(0, values.length() - 2));
+
+        executeSqlService.executeSqlScript(sql);
+        br.close();
+
     }
 
     private void findData(ManagerMessage message, Jedis jedis) {
@@ -177,5 +180,23 @@ public class MessageListener {
         values += "'" + data[data.length - 1] + "'";
 
         return String.format("(%s), ", values);
+    }
+
+    String createColumns(List<String> columns) {
+        String columnsTable = "";
+        for (int i = 0; i <= columns.size() - 1; i++) {
+            if (columns.get(i).equals("código")) {
+                columnsTable += columns.get(i) + " numeric primary key, ";
+            } else {
+                String col = columns.get(i)
+                        .replace(" ", "")
+                        .replace("/", "")
+                        .replace(".", "")
+                        .replace("-", "");
+                columnsTable += col + " varchar(150), ";
+            }
+        }
+
+        return columnsTable.substring(0, columnsTable.length() - 2);
     }
 }

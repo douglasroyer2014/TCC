@@ -20,7 +20,7 @@ public class ReadService {
 
     ExecuteSqlService executeSqlService;
 
-    public void readyFileAndSave(String directory, String nameFile, String nameTable) throws Exception {
+    public void readyFileAndSave(String directory, String nameFile, String nameTable, boolean isStructured) throws Exception {
         BufferedReader br = null;
         try {
             File file = new File(directory + "\\" + nameFile);
@@ -31,15 +31,20 @@ public class ReadService {
             int control = 0;
             while ((st = br.readLine()) != null) {
                 control += 1;
-                sql += String.format("(%s), ", convertValueInsertNumeric(st.split(";")));
+                String[] values;
+                st = st.replace("'", "''");
+                if (st.charAt(st.length() - 1) == ';') {
+                    st = st + "$";
+                    values = st.split(";");
+                    values[values.length - 1] = "";
+                } else {
+                    values = st.split(";");
+                }
+                sql += String.format("(%s), ", convertValueInsert(values, isStructured));
 
                 if (control == 2000) {
-                    try {
-                        executeSqlService.executeSqlScript(sql.substring(0, sql.length() - 2));
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                    sql = "insert into caged values ";
+                    executeSqlService.executeSqlScript(sql.substring(0, sql.length() - 2));
+                    sql = "insert into \"" + nameTable + "\" values ";
                     control = 0;
                 }
             }
@@ -50,15 +55,19 @@ public class ReadService {
         }
     }
 
-    String convertValueInsertNumeric(String[] data) {
+    String convertValueInsert(String[] data, boolean isStructured) {
         String values = "";
         for (int i = 0; i <= data.length - 1; i++) {
-            try {
-                int value = Integer.valueOf(data[i]);
-                values += value + ", ";
+            if (isStructured) {
+                try {
+                    int value = Integer.valueOf(data[i]);
+                    values += value + ", ";
 
-            } catch (Exception e) {
-                values += "NULL, ";
+                } catch (Exception e) {
+                    values += "NULL, ";
+                }
+            } else {
+                values += ("'" + data[i] + "', ").replace("\"", "");
             }
         }
         return values.substring(0, values.length() - 2);

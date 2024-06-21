@@ -13,4 +13,5 @@ public class CagedEntity {
     String defaultSearch;
     String fieldSearch;
     String valueSearch;
+    boolean structured;
 }

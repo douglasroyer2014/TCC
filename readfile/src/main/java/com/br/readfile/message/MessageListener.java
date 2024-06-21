@@ -21,7 +21,7 @@ public class MessageListener {
     @RabbitListener(queues = MQConfig.SAVE_DATA)
     public void listener(CustomMessage message) {
         try {
-            readService.readyFileAndSave(message.getDirectory(), message.getFileName(), message.getTableName());
+            readService.readyFileAndSave(message.getDirectory(), message.getFileName(), message.getTableName(), message.isStructured());
         } catch (Exception e) {
             e.printStackTrace();
         }

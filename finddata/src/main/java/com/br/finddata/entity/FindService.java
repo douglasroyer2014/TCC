@@ -23,7 +23,7 @@ public class FindService {
     public List<Map<String, Integer>> findData(String tableName, String defaultSearch, int defaultValue, String fieldSearch, int value) {
         List<Map<String, Integer>> valueList = new ArrayList<>();
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://201.54.201.31/postgres", "postgres", "aluno");
+            Connection con = DriverManager.getConnection("jdbc:postgresql://201.54.201.38/postgres", "postgres", "aluno");
 
             String sql = "Select * from " + tableName + " where " + defaultSearch + " = ? and " + fieldSearch + " = ?";
             PreparedStatement preparedStatement = con.prepareStatement(sql);
