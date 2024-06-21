@@ -19,5 +19,6 @@ public class CustomMessage {
     private String fileName;
     private String tableName;
     private String processId;
+    private boolean isStructured;
 
 }

@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class Controller {
 
     public static final Cache<String, Integer> PROCESS_TOTAL = Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
+    public static final Cache<String, String> PROCESS_DIRECTORY = Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
     MessagePublisher messagePublisher;
     ExecuteSqlService executeSqlService;
 
@@ -51,9 +52,10 @@ public class Controller {
 //            donothing
         }
 
-        createTables(file.getDirectory(), file.getTableName());
+        getColumnAndCreateTable(file.getDirectory(), file.getTableName(), file.isStructured());
         String processId = UUID.randomUUID().toString();
         PROCESS_TOTAL.put(processId, nameFileList.size());
+        PROCESS_DIRECTORY.put(processId, file.getDirectory());
 
         for (String nameFile : nameFileList) {
             messagePublisher.publishMessageSaveData(file.getDirectory(), nameFile, file.getTableName(), processId);
@@ -77,7 +79,7 @@ public class Controller {
         return "Iniciado o processo de busca!";
     }
 
-    void createTables(String directory, String tableName) {
+    void getColumnAndCreateTable(String directory, String tableName, boolean isStructured) {
         BufferedReader br = null;
         try {
             File file = new File(directory + "\\layout\\layout.csv");
@@ -96,7 +98,8 @@ public class Controller {
             }
 
             br.close();
-            createTables(columns, directory, tableName);
+
+            createTable(columns, directory, isStructured);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,95 +114,24 @@ public class Controller {
         }
     }
 
-    void createTables(List<String> columns, String directory, String nameTable) throws Exception {
-        List<String> tableFks = new ArrayList<>();
-        for (int i = 0; i < columns.size(); i++) {
-            String tableName = columns.get(i)
-                    .replace("/", "")
-                    .replace(" ", "")
-                    .replace("\\", "")
-                    .replace(".", "")
-                    .replace("-", "")
-                    .toLowerCase();
-            File file = new File(directory + "\\fk\\" + tableName + ".CSV");
-
-            if (file.exists()) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
-                String[] columnsFk = br.readLine().split(";");
-
-                createTable(columnsFk, tableName);
-
-                String st;
-                String values = "";
-                while ((st = br.readLine()) != null) {
-                    values += convertValueInsert(st.split(";"));
-                }
-
-                String sql = String.format("insert into %s values %s;", tableName, values.substring(0, values.length() - 2));
-
-                executeSqlService.executeSqlScript(sql);
-
-                tableFks.add(tableName);
-                br.close();
-            }
-        }
-
-        createTableWithFk(columns, tableFks, nameTable);
-    }
-
-    String createColumns(String[] columns) {
+    String createColumns(List<String> columns) {
         String columnsTable = "";
-        for (int i = 0; i <= columns.length - 1; i++) {
-            if (columns[i].equals("código")) {
-                columnsTable += columns[i] + " numeric primary key, ";
-            } else {
-                String col = columns[i]
-                        .replace(" ", "")
-                        .replace("/", "")
-                        .replace(".", "")
-                        .replace("-", "");
-                columnsTable += col + " varchar(150), ";
-            }
+        for (int i = 0; i <= columns.size() - 1; i++) {
+            String col = columns.get(i)
+                    .replace(" ", "")
+                    .replace("/", "")
+                    .replace(".", "")
+                    .replace("-", "");
+            columnsTable += col + " varchar(150), ";
         }
 
         return columnsTable.substring(0, columnsTable.length() - 2);
     }
 
-    void createTableWithFk(List<String> columns, List<String> tableFks, String tableName) throws Exception {
-        String createTable;
-        if (tableFks.isEmpty()) {
-            createTable = String.format("create table %s ( %s );", tableName, createColumns(columns.toArray(new String[0])));
-
-            executeSqlService.executeSqlScript(createTable);
-        } else {
-            createTable = String.format("create table %s ( %s );", tableName, createColumnsNumeric(columns));
-            executeSqlService.executeSqlScript(createTable);
-
-            createFk(tableFks, tableName);
-        }
-    }
-
-    void createFk(List<String> tableFks, String tableName) throws Exception {
-        String query = "";
-        for (String tableFk : tableFks) {
-            query += "alter table " + tableName + " add constraint fk_" + tableFk + " foreign key (" + tableFk + ") references " + tableFk + " (código);";
-        }
-
-        executeSqlService.executeSqlScript(query);
-    }
-
-    void createTable(String[] columns, String tableName) throws Exception {
-        executeSqlService.executeSqlScript(String.format("create table %s ( %s );", tableName, createColumns(columns)));
-    }
-
-    String convertValueInsert(String[] data) {
-        String values = "";
-        for (int i = 0; i <= data.length - 2; i++) {
-            values += "'" + data[i].replace("'", "''") + "',";
-        }
-        values += "'" + data[data.length - 1] + "'";
-
-        return String.format("(%s), ", values);
+    void createTable(List<String> columns, String tableName, boolean isStructured) throws Exception {
+        executeSqlService.executeSqlScript(String.format("create table %s ( %s );", tableName,
+                (isStructured) ?
+                        createColumns(columns) : createColumnsNumeric(columns)));
     }
 
     String createColumnsNumeric(List<String> columns) {

@@ -17,4 +17,7 @@ public class ManagerMessage {
     private Date messageDate;
     private String processId;
     private String messageType;
+    private boolean isStructured;
+    private String tableName;
+
 }

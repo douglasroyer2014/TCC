@@ -25,6 +25,6 @@ public class MessageListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        messagePublisher.publishMessageSaveData(message.getProcessId());
+        messagePublisher.publishMessageSaveData(message.getProcessId(), message.isStructured(), message.getTableName());
     }
 }

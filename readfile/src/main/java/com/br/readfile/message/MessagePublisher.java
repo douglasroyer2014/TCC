@@ -17,11 +17,13 @@ public class MessagePublisher {
 
     private RabbitTemplate template;
 
-    public void publishMessageSaveData(String processId) {
+    public void publishMessageSaveData(String processId, boolean isStructured, String tableName) {
         ManagerMessage managerMessage = new ManagerMessage();
         managerMessage.setMessageId(UUID.randomUUID().toString());
         managerMessage.setMessageDate(new Date());
         managerMessage.setProcessId(processId);
+        managerMessage.setStructured(isStructured);
+        managerMessage.setTableName(tableName);
         managerMessage.setMessageType("READ_FILE");
         template.convertAndSend(MQConfig.MANAGER, managerMessage);
     }
