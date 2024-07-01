@@ -18,8 +18,9 @@ public class ExecuteSqlService {
 
     @Async
     public void executeSqlScript(String script) {
+        Connection con = null;
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://201.54.201.38/postgres", "postgres", "aluno");
+            con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
 
             Statement stmt = con.createStatement();
 
@@ -28,6 +29,13 @@ public class ExecuteSqlService {
             con.close();
         } catch (Exception e) {
 //            e.printStackTrace();
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (Exception ex) {
+                }
+            }
         }
     }
 }

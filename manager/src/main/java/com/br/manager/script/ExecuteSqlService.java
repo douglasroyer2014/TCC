@@ -23,7 +23,7 @@ import java.util.Map;
 public class ExecuteSqlService {
 
     private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://201.54.201.38/postgres", "postgres", "aluno");
+        return DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "admin");
     }
 
     public void executeSqlScript(String script) {
@@ -51,6 +51,8 @@ public class ExecuteSqlService {
             while (result.next()) {
                 codeSearchList.add(result.getInt("código"));
             }
+            preparedStatement.close();
+            con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,6 +70,8 @@ public class ExecuteSqlService {
             while (result.next()) {
                 code = result.getInt("código");
             }
+            preparedStatement.close();
+            con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,6 +87,8 @@ public class ExecuteSqlService {
         while (result.next()) {
             description = result.getString("descrição");
         }
+        con.close();
+        preparedStatement.close();
         return description;
     }
 
@@ -95,6 +101,8 @@ public class ExecuteSqlService {
         while (result.next()) {
             value.put(result.getInt("código"), result.getString("descrição"));
         }
+        con.close();
+        preparedStatement.close();
         return value;
     }
 }

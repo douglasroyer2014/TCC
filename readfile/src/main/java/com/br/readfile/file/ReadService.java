@@ -25,7 +25,6 @@ public class ReadService {
         try {
             File file = new File(directory + "\\" + nameFile);
             br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
-
             String st = br.readLine();
             String sql = String.format("insert into %s values ", nameTable);
             int control = 0;
@@ -41,7 +40,6 @@ public class ReadService {
                     values = st.split(";");
                 }
                 sql += String.format("(%s), ", convertValueInsert(values, isStructured));
-
                 if (control == 2000) {
                     executeSqlService.executeSqlScript(sql.substring(0, sql.length() - 2));
                     sql = "insert into \"" + nameTable + "\" values ";
@@ -62,7 +60,6 @@ public class ReadService {
                 try {
                     int value = Integer.valueOf(data[i]);
                     values += value + ", ";
-
                 } catch (Exception e) {
                     values += "NULL, ";
                 }

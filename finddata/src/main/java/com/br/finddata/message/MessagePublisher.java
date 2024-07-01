@@ -17,11 +17,12 @@ public class MessagePublisher {
 
     private RabbitTemplate template;
 
-    public void publishMessageFindDataManager(String processId) {
+    public void publishMessageFindDataManager(String processId, boolean structured) {
         ManagerMessage managerMessage = new ManagerMessage();
         managerMessage.setMessageId(UUID.randomUUID().toString());
         managerMessage.setMessageDate(new Date());
         managerMessage.setProcessId(processId);
+        managerMessage.setStructured(structured);
         managerMessage.setMessageType("FIND_DATA");
         template.convertAndSend(MQConfig.MANAGER, managerMessage);
     }

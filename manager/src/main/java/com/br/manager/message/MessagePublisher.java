@@ -29,7 +29,8 @@ public class MessagePublisher {
         template.convertAndSend(MQConfig.SAVE_DATA, message);
     }
 
-    public void publishMessageFIndData(String tableName, String defaultSearch, int valueDefaultSearch, String fieldSearch, int valueSearch, String processId) {
+    public void publishMessageFIndData(String tableName, String defaultSearch, String valueDefaultSearch, String fieldSearch, String valueSearch, String processId,
+                                       boolean structured) {
         FindDataMessage message = new FindDataMessage();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageDate(new Date());
@@ -39,6 +40,7 @@ public class MessagePublisher {
         message.setFieldSearch(fieldSearch);
         message.setValueSearch(valueSearch);
         message.setProcessId(processId);
+        message.setStructured(structured);
         template.convertAndSend(MQConfig.FIND_DATA, message);
     }
 }

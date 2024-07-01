@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 @Setter(onMethod_ = @Autowired)
@@ -68,14 +69,20 @@ public class Controller {
         System.out.println("Iniciado o processo de Busca");
         System.out.println(LocalTime.now());
         String processId = UUID.randomUUID().toString();
-        List<Integer> codeSearch = executeSqlService.getAllCode(entity.getDefaultSearch());
-        Integer valueSearch = executeSqlService.getCode(entity.getFieldSearch(), entity.valueSearch);
-
+        List<String> codeSearch;
+        String valueSearch;
+        if (entity.isStructured()) {
+            List<Integer> codeSearchBase = executeSqlService.getAllCode(entity.getDefaultSearch());
+            codeSearch = codeSearchBase.stream().map(String::valueOf).collect(Collectors.toList());
+            valueSearch = String.valueOf(executeSqlService.getCode(entity.getFieldSearch(), entity.valueSearch));
+        } else {
+            codeSearch = entity.getValueDefaultSearch();
+            valueSearch = entity.getValueSearch();
+        }
         PROCESS_TOTAL.put(processId, codeSearch.size());
-
-//        for (Integer code : codeSearch) {
-        messagePublisher.publishMessageFIndData(entity.getTableName(), entity.getDefaultSearch(), 11, entity.fieldSearch, valueSearch, processId);
-//        }
+        for (String value : codeSearch) {
+            messagePublisher.publishMessageFIndData(entity.getTableName(), entity.getDefaultSearch(), value, entity.fieldSearch, valueSearch, processId, entity.structured);
+        }
         return "Iniciado o processo de busca!";
     }
 
@@ -83,24 +90,17 @@ public class Controller {
         BufferedReader br = null;
         try {
             File file = new File(directory + "\\layout\\layout.csv");
-
             br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1));
             List<String> columns = new ArrayList<>();
-
-            String line;
-
+            String line = br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] valor = line.split(";");
-
                 if (valor[0] != null && !valor[0].isEmpty()) {
                     columns.add(valor[0]);
                 }
             }
-
             br.close();
-
             createTable(columns, tableName, isStructured);
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -124,14 +124,12 @@ public class Controller {
                     .replace("-", "");
             columnsTable += col + " varchar(150), ";
         }
-
         return columnsTable.substring(0, columnsTable.length() - 2);
     }
 
     void createTable(List<String> columns, String tableName, boolean isStructured) throws Exception {
         executeSqlService.executeSqlScript(String.format("create table %s ( %s );", tableName,
-                (isStructured) ?
-                        createColumnsNumeric(columns) : createColumns(columns)));
+                (isStructured) ? createColumnsNumeric(columns) : createColumns(columns)));
     }
 
     String createColumnsNumeric(List<String> columns) {
@@ -144,7 +142,6 @@ public class Controller {
                     .replace("-", "")
                     + " numeric, ";
         }
-
         return columnsTable.substring(0, columnsTable.length() - 2);
     }
 }

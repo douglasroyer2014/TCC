@@ -25,16 +25,17 @@ public class MessageListener {
     @Transactional
     @RabbitListener(queues = MQConfig.FIND_DATA)
     public void listener(CustomMessage message) {
-        List<Map<String, Integer>> findList = findService
-                .findData(message.getTableName(), message.getDefaultSearch(), message.getValueSearchDefault(), message.getFieldSearch(), message.getValueSearch());
-        Jedis jedis = new Jedis("201.54.201.31", 6379);
+        List<Map<String, Object>> findList = findService
+                .findData(message.getTableName(), message.getDefaultSearch(), message.getValueSearchDefault(), message.getFieldSearch(), message.getValueSearch(),
+                        message.isStructured());
+        Jedis jedis = new Jedis("localhost", 6379);
 
         Gson gson = new Gson();
-        for (Map<String, Integer> user : findList) {
+        for (Map<String, Object> user : findList) {
             String json = gson.toJson(user);
             jedis.rpush(String.format("%s:%s", message.getProcessId(), "FIND_DATA"), json);
         }
 
-        messagePublisher.publishMessageFindDataManager(message.getProcessId());
+        messagePublisher.publishMessageFindDataManager(message.getProcessId(), message.isStructured());
     }
 }
